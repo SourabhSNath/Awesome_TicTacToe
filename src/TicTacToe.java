@@ -34,28 +34,32 @@ public class TicTacToe {
         boolean check = true; //Stops when false
         Set<Integer> trackPlayerInput = new HashSet<>(); //keeps track of player input
 
+
         int i = 0;
+        int playerInput = 0;
         while (check) {
 
             if (i % 2 == 0) {
                 System.out.print("Enter: ");
 
                 String playerInputString = scanner.next().replaceAll("[^1-9]+", "").trim();
-                int playerInput = Integer.parseInt(playerInputString);
+                playerInput = Integer.parseInt(playerInputString);
                 check = enterMark("Player1", playerInput, gameLines, trackPlayerInput);
 
             } else {
 
                 if (player2.equals("CPU")) {
-                    int cpuInput = getPlayerInput(random, trackPlayerInput);
+                    System.out.println("P I : " + playerInput);
+//                    int cpuInput = getCPUInput(random, trackPlayerInput);
+                    int cpuInput = getIntelligentCPUInput(random, trackPlayerInput, playerInput);
                     if (cpuInput != 0) {
                         System.out.println("AI Tries: " + cpuInput);
                     }
                     check = enterMark(player2, cpuInput, gameLines, trackPlayerInput);
                 } else {
                     System.out.println("Enter: ");
-                    int playerInput = scanner.nextInt();
-                    check = enterMark(player2, playerInput, gameLines, trackPlayerInput);
+                    int playerInput2 = scanner.nextInt();
+                    check = enterMark(player2, playerInput2, gameLines, trackPlayerInput);
                 }
 
             }
@@ -73,14 +77,72 @@ public class TicTacToe {
         System.out.println("Positions marked: " + Arrays.toString(trackPlayerInput.toArray()));
     }
 
-    private static int getPlayerInput(Random random, Set<Integer> trackPlayerInput) {
-        int num = random.nextInt(9) + 1;
-        System.out.println(num);
-        if (trackPlayerInput.contains(num)) {
-            getPlayerInput(random, trackPlayerInput);
+
+    private static int getIntelligentCPUInput(Random random, Set<Integer> trackPlayerInput, int prevPlayerInput) {
+//        int num = random.nextInt(9) + 1;
+
+        int cpuInput = getCPUInput(prevPlayerInput);
+
+        System.out.println(cpuInput);
+        if (trackPlayerInput.contains(cpuInput) && cpuInput == 0) {
+            getIntelligentCPUInput(random, trackPlayerInput, cpuInput);
         }
-        return num;
+        return cpuInput;
     }
+
+    private static int getCPUInput(int prevPlayerInput) {
+
+        int[] ar1 = {2, 4, 5};
+        int[] ar2 = {1, 3, 5, 4, 6};
+        int[] ar3 = {2, 5, 6};
+        int[] ar4 = {1, 2, 5, 7, 8};
+        int[] ar5 = {1, 2, 3, 4, 6, 7, 8, 9};
+        int[] ar6 = {2, 3, 5, 8, 9};
+        int[] ar7 = {4, 5, 8};
+        int[] ar8 = {7, 4, 5, 6, 9};
+        int[] ar9 = {5, 8, 6};
+
+        switch (prevPlayerInput) {
+            case 1:
+                return getRandom(ar1);
+
+            case 2:
+                return getRandom(ar2);
+            case 3:
+                return getRandom(ar3);
+            case 4:
+                return getRandom(ar4);
+            case 5:
+                return getRandom(ar5);
+            case 6:
+                return getRandom(ar6);
+            case 7:
+                return getRandom(ar7);
+            case 8:
+                return getRandom(ar8);
+            case 9:
+                return getRandom(ar9);
+            default:
+                return 0;
+        }
+
+
+    }
+
+    private static int getRandom(int[] array) {
+        System.out.println("Rand: " + Arrays.toString(array));
+        int randIndex = random.nextInt(array.length);
+        return array[randIndex];
+    }
+
+//    private static int getCPUInput(Random random, Set<Integer> trackPlayerInput) {
+//        int num = random.nextInt(9) + 1;
+//        System.out.println(num);
+//        if (trackPlayerInput.contains(num)) {
+//            getCPUInput(random, trackPlayerInput);
+//        }
+//        return num;
+//    }
 
     private static boolean enterMark(String player, int playerInput, String[][] gameLines, Set<Integer> trackPlayerInput) {
 
@@ -96,7 +158,7 @@ public class TicTacToe {
         if (trackPlayerInput.contains(playerInput) && playerInput != 0) {
 
             if (player.equals("CPU")) {
-                int cpuInput = getPlayerInput(random, trackPlayerInput);
+                int cpuInput = getIntelligentCPUInput(random, trackPlayerInput, playerInput);
                 enterMark(player, cpuInput, gameLines, trackPlayerInput);
                 System.out.println("AI Tries: " + cpuInput);
             } else {
