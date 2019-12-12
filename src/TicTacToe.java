@@ -6,6 +6,9 @@ public class TicTacToe {
     static Scanner scanner = new Scanner(System.in);
     static Random random = new Random();
 
+    static Set<Integer> player1Inputs = new HashSet<>();
+    static Set<Integer> player2Inputs = new HashSet<>();
+
     public static void main(String[] args) {
 
         //@formatter:off
@@ -44,7 +47,7 @@ public class TicTacToe {
 
                 String playerInputString = scanner.next().replaceAll("[^1-9]+", "").trim();
                 playerInput = Integer.parseInt(playerInputString);
-                check = enterMark("Player1", playerInput, gameLines, trackPlayerInput);
+                check = markPositions("Player1", playerInput, gameLines, trackPlayerInput);
 
             } else {
 
@@ -55,11 +58,11 @@ public class TicTacToe {
                     if (cpuInput != 0) {
                         System.out.println("AI Tries: " + cpuInput);
                     }
-                    check = enterMark(player2, cpuInput, gameLines, trackPlayerInput);
+                    check = markPositions(player2, cpuInput, gameLines, trackPlayerInput);
                 } else {
                     System.out.println("Enter: ");
                     int playerInput2 = scanner.nextInt();
-                    check = enterMark(player2, playerInput2, gameLines, trackPlayerInput);
+                    check = markPositions(player2, playerInput2, gameLines, trackPlayerInput);
                 }
 
             }
@@ -79,17 +82,17 @@ public class TicTacToe {
 
 
     private static int getIntelligentCPUInput(Random random, Set<Integer> trackPlayerInput, int prevPlayerInput) {
-//        int num = random.nextInt(9) + 1;
 
         int cpuInput = getCPUInput(prevPlayerInput);
 
         System.out.println(cpuInput);
-        if (trackPlayerInput.contains(cpuInput) && cpuInput == 0) {
-            getIntelligentCPUInput(random, trackPlayerInput, cpuInput);
-        }
+//        if (trackPlayerInput.contains(cpuInput) && cpuInput == 0) {
+//            getIntelligentCPUInput(random, trackPlayerInput, cpuInput);
+//        }
         return cpuInput;
     }
 
+    //Better Intelligence :P
     private static int getCPUInput(int prevPlayerInput) {
 
         int[] ar1 = {2, 4, 5};
@@ -105,7 +108,6 @@ public class TicTacToe {
         switch (prevPlayerInput) {
             case 1:
                 return getRandom(ar1);
-
             case 2:
                 return getRandom(ar2);
             case 3:
@@ -135,35 +137,45 @@ public class TicTacToe {
         return array[randIndex];
     }
 
-//    private static int getCPUInput(Random random, Set<Integer> trackPlayerInput) {
-//        int num = random.nextInt(9) + 1;
-//        System.out.println(num);
-//        if (trackPlayerInput.contains(num)) {
-//            getCPUInput(random, trackPlayerInput);
-//        }
-//        return num;
-//    }
 
-    private static boolean enterMark(String player, int playerInput, String[][] gameLines, Set<Integer> trackPlayerInput) {
+    private static boolean markPositions(String player, int playerInput, String[][] gameLines, Set<Integer> trackAllInputs) {
 
         Set<Integer> trackInputRange = IntStream.range(1, 10).boxed().collect(Collectors.toSet()); //Used to check if trackPlayerInput is full
 
+        List<List<Integer>> allWinningPositions = new ArrayList<>();
+        allWinningPositions.add(new ArrayList<>(Arrays.asList(1, 2, 3))); //topRow
+        allWinningPositions.add(new ArrayList<>(Arrays.asList(4, 5, 6))); //middleRow
+        allWinningPositions.add(new ArrayList<>(Arrays.asList(7, 8, 9))); //bottomRow
+        allWinningPositions.add(new ArrayList<>(Arrays.asList(1, 4, 7))); //leftCol
+        allWinningPositions.add(new ArrayList<>(Arrays.asList(2, 5, 8))); //middleCol
+        allWinningPositions.add(new ArrayList<>(Arrays.asList(3, 6, 9))); //rightCol
+        allWinningPositions.add(new ArrayList<>(Arrays.asList(1, 5, 9))); //LeftDiagonal
+        allWinningPositions.add(new ArrayList<>(Arrays.asList(3, 5, 7))); //rightDiagonal
 
-        String mark = " X ";
+
+        String mark = "   ";
         if (player.equals("Player1")) {
             mark = " O ";
+            player1Inputs.add(playerInput);
+            player1Inputs.removeAll(player2Inputs);
+        } else {
+            mark = " X ";
+            player2Inputs.add(playerInput);
+            player2Inputs.removeAll(player1Inputs);
         }
 
 
-        if (trackPlayerInput.contains(playerInput) && playerInput != 0) {
+        System.out.println(Arrays.toString(trackAllInputs.toArray()));
+
+        if (trackAllInputs.contains(playerInput) && playerInput != 0) {
 
             if (player.equals("CPU")) {
-                int cpuInput = getIntelligentCPUInput(random, trackPlayerInput, playerInput);
-                enterMark(player, cpuInput, gameLines, trackPlayerInput);
+                int cpuInput = getIntelligentCPUInput(random, trackAllInputs, playerInput);
+                markPositions(player, cpuInput, gameLines, trackAllInputs);
                 System.out.println("AI Tries: " + cpuInput);
             } else {
                 System.out.println("Marked already, choose a different position.");
-                enterMark(player, scanner.nextInt(), gameLines, trackPlayerInput);
+                markPositions(player, scanner.nextInt(), gameLines, trackAllInputs);
             }
 
         } else {
@@ -172,47 +184,78 @@ public class TicTacToe {
             switch (playerInput) {
                 case 1:
                     gameLines[0][0] = mark;
-                    trackPlayerInput.add(1);
                     break;
                 case 2:
                     gameLines[0][2] = mark;
-                    trackPlayerInput.add(2);
                     break;
                 case 3:
                     gameLines[0][4] = mark;
-                    trackPlayerInput.add(3);
                     break;
                 case 4:
                     gameLines[2][0] = mark;
-                    trackPlayerInput.add(4);
                     break;
                 case 5:
                     gameLines[2][2] = mark;
-                    trackPlayerInput.add(5);
                     break;
                 case 6:
                     gameLines[2][4] = mark;
-                    trackPlayerInput.add(6);
                     break;
                 case 7:
                     gameLines[4][0] = mark;
-                    trackPlayerInput.add(7);
                     break;
                 case 8:
                     gameLines[4][2] = mark;
-                    trackPlayerInput.add(8);
                     break;
                 case 9:
                     gameLines[4][4] = mark;
-                    trackPlayerInput.add(9);
                     break;
                 default:
                     break;
             }
         }
 
-        return !trackPlayerInput.containsAll(trackInputRange); //Returns false when it contains all
+        trackAllInputs.add(playerInput); //tracks all inputs to the end
 
+        String winMessage = gameResult(allWinningPositions, player1Inputs, player2Inputs, player, trackAllInputs, trackInputRange);
+        System.out.println(winMessage);
+        return winMessage.length() <= 0; //return false to stop the while loop
+
+    }
+
+    private static String gameResult(List<List<Integer>> allWinningPositions, Set<Integer> player1Inputs, Set<Integer> player2Inputs, String player, Set<Integer> trackAllInputs, Set<Integer> trackInputRange) {
+
+        if (trackAllInputs.containsAll(trackInputRange)) {
+
+            for (List<Integer> wins : allWinningPositions) {
+                if (player1Inputs.containsAll(wins)) {
+                    return "Player 1 Wins!";
+                } else if (player2Inputs.containsAll(wins)) {
+                    if (player.equals("Player2")) {
+                        return "Player 2 Wins!";
+                    } else {
+                        return "AI Wins!";
+                    }
+                }
+            }
+
+            return "Game Tied.";
+        } else {
+
+            for (List<Integer> wins : allWinningPositions) {
+                if (player1Inputs.containsAll(wins)) {
+                    return "Player 1 Wins!";
+                } else if (player2Inputs.containsAll(wins)) {
+                    if (player.equals("Player2")) {
+                        return "Player 2 Wins!";
+                    } else {
+                        return "AI Wins!";
+                    }
+                }
+            }
+        }
+
+
+        return "";
     }
 
 
